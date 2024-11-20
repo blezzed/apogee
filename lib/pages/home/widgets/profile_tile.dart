@@ -34,7 +34,7 @@ class ProfileTile extends StatelessWidget {
                   Text(
                     text ?? "",
                     style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                        color: AppColors.paraColor
+                        color: AppColors.signColor
                     ),
                   ),
                 ],

@@ -57,8 +57,6 @@ class UserStore extends GetxController{
   Future<void> onLogout() async {
     await StorageService.to.remove(STORAGE_USER_TOKEN_KEY);
     await StorageService.to.remove(STORAGE_USER_PROFILE_KEY);
-    await StorageService.to.remove(STORAGE_COMPANY_PROFILE_KEY);
-    await StorageService.to.remove(STORAGE_REPORT_CASES);
     _isLogin.value = false;
     token = "";
     Get.offAllNamed(AppRoutes.Sign_In);
