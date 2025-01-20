@@ -28,4 +28,9 @@ class SatelliteTLE {
       tleGroup: json['tle_group'],
     );
   }
+
+  @override
+  String toString() {
+    return 'SatelliteTLE(name: $name, orbitStatus: $orbitStatus, tleGroup: $tleGroup)';
+  }
 }

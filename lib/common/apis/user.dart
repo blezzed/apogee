@@ -1,7 +1,6 @@
 import 'dart:convert';
 import "package:http/http.dart" as http;
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 
 import '../entities/ground_station.dart';
 import '../entities/sat_pass.dart';
@@ -11,7 +10,7 @@ import '../values/storage.dart';
 
 class UserApi extends ChangeNotifier{
 
-  bool _hasError = false;
+  final bool _hasError = false;
   bool get hasError => _hasError;
 
   String? _errorCode;

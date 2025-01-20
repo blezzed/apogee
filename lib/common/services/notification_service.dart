@@ -53,13 +53,11 @@ class LocalNotificationService extends GetxService{
   Future<void> onInit() async {
     // Initialize native android notification
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    AndroidInitializationSettings('dark_apogee');
 
     // Initialize native Ios Notifications
     const DarwinInitializationSettings initializationSettingsIOS =
     DarwinInitializationSettings();
-
-
 
     const InitializationSettings initializationSettings =
     InitializationSettings(

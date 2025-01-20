@@ -2,7 +2,6 @@
 import 'package:apogee/pages/home/index.dart';
 import 'package:get/get.dart';
 
-import '../middlewares/router_auth.dart';
 import 'routes.dart';
 
 class AppPages{

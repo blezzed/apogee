@@ -2,26 +2,35 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:apogee/common/apis/telemetry.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../entities/sat_pass.dart';
+import '../entities/telemetry.dart';
 import '../provider/internet.dart';
+import '../services/foreground_task.dart';
 import '../services/notification_service.dart';
 import '../values/storage.dart';
 
-class SatellitesData extends GetxService{
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+
+class SatellitesData extends GetxService with WidgetsBindingObserver{
 
   static SatellitesData get to => Get.find();
 
 // Observable list to store satellite positions
   RxList<Map<String, dynamic>> satellitePositions = <Map<String, dynamic>>[].obs;
   RxList<SatellitePassModel> satellitePasses = <SatellitePassModel>[].obs;
+  RxList<TelemetryModel> telemetryList = <TelemetryModel>[].obs;
+
+  List<Map<String, dynamic>> webSocketMessageBuffer = [];
 
   // WebSocket channel
   late WebSocketChannel positionChannel;
   late WebSocketChannel passesChannel;
+  late WebSocketChannel telemetryChannel;
 
   RxBool webSocketConnection = false.obs;
 
@@ -29,19 +38,118 @@ class SatellitesData extends GetxService{
   final int maxRetries = 5; // Maximum reconnection attempts
   int retryCount = 0;
 
+  Timer? pingTimer;
+
+  void _startPing() {
+    pingTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      try {
+        positionChannel.sink.add(jsonEncode({'type': 'ping'})); // Send a ping message to the server
+      } catch (e) {
+        print("Error sending ping: $e");
+      }
+    });
+  }
+
+  void _stopPing() {
+    pingTimer?.cancel();
+  }
+
+  Future<void> _requestPermissions() async {
+    final permission = await FlutterForegroundTask.checkNotificationPermission();
+    if (permission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+
+    // Check for battery optimizations (Android)
+    if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+      await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+    }
+  }
+
+  @pragma('vm:entry-point')
+  void startCallback() {
+    FlutterForegroundTask.setTaskHandler(SatelliteForegroundTask());
+  }
+
   @override
   Future<void> onInit() async {
+
+    WidgetsBinding.instance.addObserver(this);
+
+    await _requestPermissions();
+
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'satellite_channel',
+        channelName: 'Satellite Tracking Service',
+        channelDescription: 'Keeps the WebSocket connection alive for satellite tracking.',
+        channelImportance: NotificationChannelImportance.LOW,
+        priority: NotificationPriority.LOW,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(
+        showNotification: true,
+      ),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.repeat(5000),
+        autoRunOnBoot: true,
+        autoRunOnMyPackageReplaced: true,
+        allowWakeLock: true,
+        allowWifiLock: true,
+      ),
+    );
+
+    // Start the foreground service
+    await FlutterForegroundTask.startService(
+      notificationTitle: 'Satellite Tracking',
+      notificationText: 'WebSocket connection is active.',
+      callback: startCallback,
+    );
+
     _initializeListeners();
-    _connectWebSocketForPositions();
-    _connectWebSocketForPasses();
+    /*_connectWebSocketForPositions();
+    _connectWebSocketForPasses();*/
+
+    telemetryList.value = await TelemetryService().fetchTelemetry();
+
+    FlutterForegroundTask.addTaskDataCallback((data) {
+      if (data is Map<String, dynamic>) {
+        if (data['action'] == 'check_websocket') {
+          // Check and reconnect WebSocket if disconnected
+          if (!webSocketConnection.value) {
+            print("WebSocket disconnected. Attempting reconnection...");
+            attemptReconnection();
+          }
+        }
+
+        _processForegroundTaskData(data);
+      }
+    });
+
     super.onInit();
+  }
+
+  void _processForegroundTaskData(Map<String, dynamic> data) {
+    print("Foreground Task Data: $data");
+
+    if (data['satellite_passes'] != null) {
+      final processedPasses = processSatellitePasses(data['satellite_passes']);
+      satellitePasses.value = processedPasses;
+
+      if (data['message'] != null) {
+        LocalNotificationService.to.showNotificationAndroid(
+          notification_id: DateTime.now().millisecondsSinceEpoch,
+          title: "Satellite Pass Alert",
+          body: data['message'],
+        );
+      }
+    }
   }
 
   void _initializeListeners() {
     InternetProvider.to.hasInternet.listen((hasInternet) {
       if (hasInternet) {
         print("Internet available. Checking WebSocket connection...");
-        _attemptReconnection();
+        attemptReconnection();
       } else {
         print("No internet connection. WebSocket connections paused.");
       }
@@ -69,11 +177,15 @@ class SatellitesData extends GetxService{
           satellitePositions.value = List<Map<String, dynamic>>.from(decodedData['position']);
         }
         webSocketConnection.value = true;
+        retryCount = 0;
       }, onError: (error) {
         print("WebSocket Error: $error");
+        webSocketConnection.value = false;
+        _scheduleReconnection();
       }, onDone: () {
         print("WebSocket Connection Closed");
         webSocketConnection.value = false;
+        _scheduleReconnection();
       });
     } catch (e){
       print("Error connecting to WebSocket: $e");
@@ -99,18 +211,67 @@ class SatellitesData extends GetxService{
           if (decodedData['message'] != null) {
             final pass = decodedData['pass_data'];
             LocalNotificationService.to.showNotificationAndroid(
-              notification_id: int.parse(DateFormat('ddHHmm').format(pass.setPassTime!)),
+              notification_id: decodedData['id'],
               title: "Satellite Pass Alert",
               body: decodedData['message'],
             );
+            // Add the message to the buffer
+            webSocketMessageBuffer.add(decodedData);
+
+            // Optionally send the data to the foreground task
+            /*FlutterForegroundTask.updateService(
+              notificationTitle: "Satellite Pass Alert",
+              notificationText: decodedData['message'],
+            );*/
           }
+
+
         }
         webSocketConnection.value = true;
       }, onError: (error) {
         print("WebSocket Passes Error: $error");
+        webSocketConnection.value = false;
+        _scheduleReconnection();
       });
     } catch (e){
       print("Error connecting to WebSocket passes: $e");
+      webSocketConnection.value = false;
+      _scheduleReconnection();
+    }
+  }
+
+  // Function to connect to WebSocket for telemetry
+  void _connectWebSocketForTelemetry() async {
+    try{
+      telemetryChannel = WebSocketChannel.connect(
+        Uri.parse('ws://$BASE_API/ws/telemetry/'), // Adjust with your IP
+      );
+
+      telemetryChannel.stream.listen((data) async {
+        print("Received WebSocket Telemetry Data: $data");
+        final decodedData = jsonDecode(data);
+        if (decodedData['id'] != null) {
+
+          LocalNotificationService.to.showNotificationAndroid(
+            notification_id: decodedData['id'],
+            title: "Telemetry Update for ${decodedData['satellite']}",
+            body: "Time: ${decodedData['timestamp']} \nHealth: ${decodedData['health_status']} \nCommand status: ${decodedData['command_status']}",
+          );
+          print("Time: ${decodedData['timestamp']} \nHealth: ${decodedData['health_status']} \nCommand status: ${decodedData['command_status']}");
+          // Add the message to the buffer
+          webSocketMessageBuffer.add(decodedData);
+
+          telemetryList.value = await TelemetryService().fetchTelemetry();
+
+        }
+        webSocketConnection.value = true;
+      }, onError: (error) {
+        print("WebSocket Passes Error: $error");
+        webSocketConnection.value = false;
+        _scheduleReconnection();
+      });
+    } catch (e){
+      print("Error connecting to WebSocket telemetry: $e");
       webSocketConnection.value = false;
       _scheduleReconnection();
     }
@@ -141,7 +302,7 @@ class SatellitesData extends GetxService{
 
       // If it's a "set" event, store the set time and finalize the pass
       if (pass['event'] == 'Satellite Set') {
-        setTime = DateTime.parse(pass['event_time']);
+        setTime = DateTime.parse(pass['event_time']); 
 
         // Create a SatellitePassModel and add it to the list
         SatellitePassModel satellitePass = SatellitePassModel(
@@ -158,8 +319,11 @@ class SatellitesData extends GetxService{
       }
     }
 
+    print('grouped pass: $groupedPasses');
     // Sort the passes by rise time
+
     groupedPasses.sort((a, b) {
+      print(a.risePassTime);
       return a.risePassTime!.compareTo(b.risePassTime!);
     });
 
@@ -173,20 +337,22 @@ class SatellitesData extends GetxService{
     }
 
     reconnectTimer?.cancel();
-    reconnectTimer = Timer(Duration(seconds: 2 * (retryCount + 1)), () {
+    final delay = Duration(seconds: 2 * (1 << retryCount)); // Exponential backoff
+    reconnectTimer = Timer(delay, () {
       retryCount++;
       print("Attempting reconnection... (Attempt $retryCount)");
-      _attemptReconnection();
+      attemptReconnection();
     });
   }
 
-  void _attemptReconnection() {
+  void attemptReconnection() {
     if (retryCount >= maxRetries) return;
 
     if (InternetProvider.to.hasInternet.value) {
       print("Internet is available. Reconnecting WebSockets...");
       _connectWebSocketForPositions();
       _connectWebSocketForPasses();
+      _connectWebSocketForTelemetry();
     } else {
       print("No internet. Waiting to reconnect...");
     }
@@ -194,10 +360,22 @@ class SatellitesData extends GetxService{
 
   @override
   void onClose() {
-    // Close the WebSocket connection when the service is closed
+    WidgetsBinding.instance.removeObserver(this);
+    _stopPing();
     positionChannel.sink.close();
     passesChannel.sink.close();
+    telemetryChannel.sink.close();
     reconnectTimer?.cancel();
+
+    FlutterForegroundTask.stopService();
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      print("App resumed. Checking WebSocket connection...");
+      attemptReconnection();
+    }
   }
 }

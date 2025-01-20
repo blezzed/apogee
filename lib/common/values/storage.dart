@@ -14,4 +14,4 @@ const String STORAGE_GOOGLE_MAP_KEY = "AIzaSyD-efSsHkGz-Uj2-XizQ5t21tyVjNppyg4";
 
 //api
 
-const String BASE_API = "192.168.1.107:8001";
+const String BASE_API = "192.168.1.105:8001";

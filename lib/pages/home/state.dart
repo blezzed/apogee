@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../common/entities/telemetry.dart';
+
 class HomeState{
 
   Rx<int> page = 0.obs;
@@ -20,5 +22,7 @@ class HomeState{
   RxBool loading = false.obs;
 
   RxList<Marker> markerList = <Marker>[].obs;
+
+
 
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../common/apis/telemetry.dart';
 import '../../common/entities/ground_station.dart';
 import '../../common/provider/internet.dart';
 
@@ -68,6 +69,7 @@ class HomeController extends GetxController {
     });
   }
 
+
   @override
   void onInit() {
     super.onInit();
@@ -85,6 +87,8 @@ class HomeController extends GetxController {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       currentTime.value = DateTime.now(); // Update the time every second
     });
+
+
 
   }
 

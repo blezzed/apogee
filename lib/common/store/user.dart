@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:apogee/common/entities/entities.dart';
 import 'package:get/get.dart';
 
-import '../provider/internet.dart';
 import '../routes/routes.dart';
 import '../services/storage.dart';
 import '../values/storage.dart';

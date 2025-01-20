@@ -21,7 +21,7 @@ class ProfilePage extends GetView<HomeController> {
 
     final state = controller.state;
 
-    RichText _subTitle(title, value)=>RichText(text: TextSpan(
+    RichText subTitle(title, value)=>RichText(text: TextSpan(
       children: [
         TextSpan(
           text: '$title: ', // Label part
@@ -116,9 +116,9 @@ class ProfilePage extends GetView<HomeController> {
                   "GROUND STATION",
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
-                _subTitle("Name", controller.station.value.name),
-                _subTitle("Altitude", "${controller.station.value.altitude}°"),
-                _subTitle("Tracking Elevation", "${controller.station.value.startTrackingElevation}°"),
+                subTitle("Name", controller.station.value.name),
+                subTitle("Altitude", "${controller.station.value.altitude}°"),
+                subTitle("Tracking Elevation", "${controller.station.value.startTrackingElevation}°"),
               ],
             ),
           ),

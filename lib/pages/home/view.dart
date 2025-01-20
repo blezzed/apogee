@@ -1,6 +1,4 @@
 
-import 'package:apogee/common/apis/websocket.dart';
-import 'package:apogee/pages/home/widgets/ground_station.dart';
 import 'package:apogee/pages/home/widgets/profile.dart';
 import 'package:apogee/pages/home/widgets/satellite_passes.dart';
 import 'package:apogee/pages/home/widgets/satellite_position.dart';
@@ -22,10 +20,10 @@ class HomePage extends GetView<HomeController> {
       controller: controller.pageController,
       onPageChanged: controller.handlePageChanged,
       children:  [
-        SatellitePasses(),
-        SatellitePosition(),
+        const SatellitePasses(),
+        const SatellitePosition(),
         StoragePage(),
-        ProfilePage(),
+        const ProfilePage(),
       ],
     );
   }

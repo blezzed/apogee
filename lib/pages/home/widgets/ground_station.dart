@@ -20,7 +20,7 @@ class GroundStation extends GetView<HomeController> {
             ),
           )
       ),
-      body: Center(child: Text("Ground Station")),
+      body: const Center(child: Text("Ground Station")),
     );
   }
 }
