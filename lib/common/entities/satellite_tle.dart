@@ -29,6 +29,18 @@ class SatelliteTLE {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'line1': line1,
+      'line2': line2,
+      'auto_tracking': autoTracking,
+      'orbit_status': orbitStatus,
+      'tle_group': tleGroup,
+    };
+  }
+
   @override
   String toString() {
     return 'SatelliteTLE(name: $name, orbitStatus: $orbitStatus, tleGroup: $tleGroup)';

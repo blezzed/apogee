@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../common/apis/telemetry.dart';
 import '../../common/entities/ground_station.dart';
 import '../../common/provider/internet.dart';
 
@@ -74,7 +73,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
 
-    state.tabTitles.value = ["Passes", "Satellites", "History", "Settings",];
+    state.tabTitles.value = ["Passes", "Satellites", "Storage", "Settings",];
     state.listOfIcons.value = [
       Icons.home_rounded,
       Icons.satellite_alt_outlined,
@@ -87,8 +86,6 @@ class HomeController extends GetxController {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       currentTime.value = DateTime.now(); // Update the time every second
     });
-
-
 
   }
 

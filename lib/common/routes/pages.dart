@@ -1,5 +1,6 @@
 
 import 'package:apogee/pages/home/index.dart';
+import 'package:apogee/pages/telemetry_details/index.dart';
 import 'package:get/get.dart';
 
 import 'routes.dart';
@@ -15,6 +16,12 @@ class AppPages{
         name: AppRoutes.Home,
         page: () => const HomePage(),
         binding: HomeBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.TelemetryDetails,
+      page: () => const TelemetryDetailsPage(),
+      binding: TelemetryDetailsBinding(),
     ),
 
     /*GetPage(
@@ -34,4 +41,7 @@ class AppPages{
 
 
   ];
+}
+
+class TelemetryDetails {
 }

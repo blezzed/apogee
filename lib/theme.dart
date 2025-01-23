@@ -13,6 +13,12 @@ abstract class AppColors {
   static const Color paraColor = Color(0xffd3c3b9);
   static const Color signColor = Color(0xffa79e9c);
   static const Color rifleBlue = Color(0xFF10232a);
+  static const Color rifleBlue50 = Color(0xFFf0fafb);
+  static const Color rifleBlue100 = Color(0xFFd9f2f4);
+  static const Color rifleBlue200 = Color(0xFFb8e5e9);
+  static const Color rifleBlue300 = Color(0xFF87d1d9);
+  static const Color rifleBlue600 = Color(0xFF2d7c8d);
+  static const Color rifleBlue700 = Color(0xFF2a6574);
   static const Color lytBlue = Color(0xff3d4d55);
   static const Color darkBrown = Color(0xff161616);
   static const Color buttonBackgroundColor = Color(0xFFf7f6f4);
@@ -41,6 +47,9 @@ class AppTheme {
     brightness: Brightness.light,
     colorSchemeSeed: AppColors.primary,
     textTheme: TextTheme(
+      displaySmall: GoogleFonts.montserrat(
+        fontWeight: FontWeight.w700
+      ),
       labelLarge: GoogleFonts.montserrat(
         color: AppColors.textGrey,
         fontWeight: FontWeight.w600,

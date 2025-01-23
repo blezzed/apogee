@@ -261,9 +261,8 @@ class SatellitesData extends GetxService with WidgetsBindingObserver{
           // Add the message to the buffer
           webSocketMessageBuffer.add(decodedData);
 
-          telemetryList.value = await TelemetryService().fetchTelemetry();
-
         }
+        telemetryList.value = await TelemetryService().fetchTelemetry();
         webSocketConnection.value = true;
       }, onError: (error) {
         print("WebSocket Passes Error: $error");
@@ -275,6 +274,8 @@ class SatellitesData extends GetxService with WidgetsBindingObserver{
       webSocketConnection.value = false;
       _scheduleReconnection();
     }
+
+    telemetryList.value = await TelemetryService().fetchTelemetry();
   }
 
   List<SatellitePassModel> processSatellitePasses(List<dynamic> passesData) {

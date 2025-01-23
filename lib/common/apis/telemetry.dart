@@ -5,7 +5,7 @@ import '../entities/telemetry.dart';
 import '../values/storage.dart';
 
 class TelemetryService {
-  final String baseUrl = "http://${BASE_API}/api/telemetry/";
+  final String baseUrl = "http://$BASE_API/api/telemetry/";
 
   /// Fetch telemetry data from the API and parse it into a list of TelemetryModel objects
   Future<List<TelemetryModel>> fetchTelemetry() async {

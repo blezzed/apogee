@@ -4,4 +4,6 @@ class AppRoutes{
 
   static const String Home = "/home";
 
+  static const String TelemetryDetails = "/telemetry_details";
+
 }
