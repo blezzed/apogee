@@ -16,13 +16,13 @@ class RouteAuthMiddleware extends GetMiddleware{
 
   @override
   RouteSettings? redirect(String? route) {
-    if (UserStore.to.isLogin || route == AppRoutes.Sign_In){
+    if (UserStore.to.hasToken || route == AppRoutes.Sign_In){
        return null;
 
     }else{
       Future.delayed(
         const Duration(seconds: 2),
-          () => Get.snackbar("Tips", "Welcome to FMD", colorText: AppColors.textDark)
+          () => Get.snackbar("Tips", "Welcome to Apogee", colorText: AppColors.textDark)
       );
       return const RouteSettings(name: AppRoutes.Sign_In);
     }

@@ -25,17 +25,18 @@ class UserStore extends GetxController{
   @override
   Future<UserStore> onInit() async {
     super.onInit();
-    /*token = StorageService.to.getString(STORAGE_USER_TOKEN_KEY);
+    token = StorageService.to.getString(STORAGE_USER_TOKEN_KEY);
     var profileOffline = StorageService.to.getString(STORAGE_USER_PROFILE_KEY);
     if(profileOffline.isNotEmpty){
       _isLogin.value = true;
       _profile(UserData.fromJson(jsonDecode(profileOffline)));
-    }*/
+    }
     return this;
 
   }
 
   Future<void> setToken(String value) async {
+    token = value;
     await StorageService.to.setString(STORAGE_USER_TOKEN_KEY, value);
   }
 
@@ -50,7 +51,6 @@ class UserStore extends GetxController{
     profileJson["created_at"] = profileJson["created_at"].toString();
     StorageService.to.setString(STORAGE_USER_PROFILE_KEY, jsonEncode(profileJson));
     _profile(profile);
-    setToken(profile.access_token!);
   }
 
   Future<void> onLogout() async {

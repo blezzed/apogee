@@ -130,7 +130,7 @@ class ProfilePage extends GetView<HomeController> {
                 size: 35.h,
               ),
               title: "Name",
-              text:  "Fill in your name"
+              text:  "${controller.user.firstName} ${controller.user.lastName}"
           ),
           Divider(
             thickness: 1,
@@ -166,7 +166,7 @@ class ProfilePage extends GetView<HomeController> {
             title: "Logout",
             text: "Sign out",
             onTap: (){
-              // controller.onLogout();
+              controller.onLogout();
             },
           ),
         ],

@@ -23,7 +23,7 @@ class Global {
 
     await Get.putAsync<UserStore>(() => UserStore().onInit());
 
-    Get.put<SatellitesData>(SatellitesData());
+    // Get.put<SatellitesData>(SatellitesData());
 
     Get.put<LocalNotificationService>(LocalNotificationService());
 

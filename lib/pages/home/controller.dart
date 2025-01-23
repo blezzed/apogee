@@ -2,17 +2,21 @@
 import 'dart:async';
 
 import 'package:apogee/common/apis/user.dart';
+import 'package:apogee/common/entities/user.dart';
 import 'package:apogee/pages/home/state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../common/apis/auth.dart';
 import '../../common/entities/ground_station.dart';
 import '../../common/provider/internet.dart';
+import '../../common/store/user.dart';
 
 class HomeController extends GetxController {
   HomeController();
   final state = HomeState();
+  late UserData user;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<ScaffoldState> get scaffoldKey => _scaffoldKey;
@@ -73,6 +77,8 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
 
+    user = UserStore.to.profile;
+
     state.tabTitles.value = ["Passes", "Satellites", "Storage", "Settings",];
     state.listOfIcons.value = [
       Icons.home_rounded,
@@ -104,6 +110,12 @@ class HomeController extends GetxController {
     });
 
   }
+
+  void onLogout() async {
+    await AuthApiService.logout();
+    UserStore.to.onLogout();
+  }
+
 
 
 }

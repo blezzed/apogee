@@ -3,6 +3,9 @@ import 'package:apogee/pages/home/index.dart';
 import 'package:apogee/pages/telemetry_details/index.dart';
 import 'package:get/get.dart';
 
+import '../../pages/auth/bindings.dart';
+import '../../pages/auth/view.dart';
+import '../middlewares/router_auth.dart';
 import 'routes.dart';
 
 class AppPages{
@@ -12,11 +15,11 @@ class AppPages{
 
   static List<GetPage> routes = [
 
-    GetPage(
+    /*GetPage(
         name: AppRoutes.Home,
         page: () => const HomePage(),
         binding: HomeBinding(),
-    ),
+    ),*/
 
     GetPage(
       name: AppRoutes.TelemetryDetails,
@@ -24,7 +27,7 @@ class AppPages{
       binding: TelemetryDetailsBinding(),
     ),
 
-    /*GetPage(
+    GetPage(
         name: AppRoutes.Sign_In,
         page: () => const AuthPage(),
         binding: AuthBinding(),
@@ -37,7 +40,7 @@ class AppPages{
       middlewares: [
         RouteAuthMiddleware(priority: 1),
       ],
-    ),*/
+    ),
 
 
   ];

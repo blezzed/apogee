@@ -1,50 +1,43 @@
-
-import 'address.dart';
-
-enum Authority {employ, employee, customer}
+import 'package:apogee/common/entities/profile.dart';
 
 class UserData {
-  String? id;
-  String? access_token;
-  String? name;
-  String? surname;
+  int? id;
+  String? username;
   String? email;
-  String? phone;
-  AddressModel? address;
-  String? avatar;
-  Authority authority = Authority.customer;
-  DateTime? created_at;
+  String? firstName;
+  String? lastName;
+  UserProfile? profile;
 
   UserData({
     this.id,
-    this.access_token,
-    this.name,
-    this.surname,
+    this.username,
     this.email,
-    this.phone,
-    this.address,
-    this.avatar,
-    this.authority = Authority.customer,
-    this.created_at,
+    this.firstName,
+    this.lastName,
+    this.profile,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      "id": id,
-      "access_token": access_token,
-      "name": name,
-      "surname": surname,
-      "email": email,
-      "phone": phone,
-      "address": (address==null)? null :address!.toJson(),
-      "avatar": avatar,
-      "authority": authority.index,
-      "created_at": created_at,
-    };
+  // Convert a JSON to a User instance
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      profile: UserProfile.fromJson(json['profile']),
+    );
   }
 
+  // Convert User instance to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'username': username,
+      'email': email,
+      'first_name': firstName,
+      'last_name': lastName,
+      'profile': profile!.toJson(),
+    };
+  }
 }
-
-
-
-
