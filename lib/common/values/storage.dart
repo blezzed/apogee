@@ -9,7 +9,7 @@ const String STORAGE_INDEX_NEWS_CACHE_KEY = "cache_index_news";
 
 const String STORAGE_LANGUAGE_CODE = "language_code";
 
-const String STORAGE_GOOGLE_MAP_KEY = "AIzaSyD-efSsHkGz-Uj2-XizQ5t21tyVjNppyg4";
+const String STORAGE_GOOGLE_MAP_KEY = "Google_API_Key";
 
 
 //api
