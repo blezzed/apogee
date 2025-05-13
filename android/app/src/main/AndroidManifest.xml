@@ -42,7 +42,7 @@
             android:value="2" />
 
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyD-efSsHkGz-Uj2-XizQ5t21tyVjNppyg4"/>
+            android:value="${STORAGE_GOOGLE_MAP_KEY}"/>
 
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
